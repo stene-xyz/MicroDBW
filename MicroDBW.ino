@@ -59,26 +59,29 @@ void setup() {
 	// Attach both motors to their respective pulse pins
 	ESC.attach(ESC_CONTROL_PIN);
 	steering_servo.attach(SERVO_CONTROL_PIN);
-	
+
+	Serial.setTimeout(35565);
 	Serial.println("OK"); // Tell the computer we are ready
 }
 
 void loop() {
-	char command; // Stores the incoming command byte (either D or S)
+	char command[1]; // Stores the incoming command byte (either D or S)
 	long int value; // Stores the recieved integer value
 	
-	Serial.readBytes(&command, 1); // 1 byte for the command
+	Serial.readBytes(command, 1); // 1 byte for the command
 	value = Serial.parseInt(SKIP_NONE); // Read an integer
 	
 	value += 90; // Neutral position is 90
 	if(value < 0 || value > 180) // Don't allow values too big/low
-		Serial.println("ERR");
+		Serial.println("ERR1");
 	else { // Set positions to recieved value
-		if(command == ESC_CONTROL_CHARACTER) 
-			ESC_position = value;
-		else if(command == SERVO_CONTROL_CHARACTER) 
+		if(command[0] == ESC_CONTROL_CHARACTER) {
+			  ESC_position = value;
+			Serial.println("OK");
+		} else if(command[0] == SERVO_CONTROL_CHARACTER) {
 			steering_position = value;
-		else Serial.println("ERR"); // Error if bad command character
+			Serial.println("OK");
+		} else Serial.println("ERR2"); // Error if bad command character
 	}
 	
 	// Write new positions
